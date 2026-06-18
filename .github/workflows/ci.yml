@@ -1,0 +1,103 @@
+# ══════════════════════════════════════════════════════════════
+# FleetMaster CI — Testes + Build
+# Disparado em: push para main/develop e qualquer pull_request
+# ══════════════════════════════════════════════════════════════
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true   # cancela runs antigas do mesmo branch/PR
+
+jobs:
+  # ────────────────────────────────────────────────────────────
+  # JOB 1 — Testes unitários da API (419 testes, sem DB real)
+  # ────────────────────────────────────────────────────────────
+  test-api:
+    name: Testes API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências (workspace)
+        run: npm ci
+
+      - name: Gerar Prisma Client (necessário para tipos em ts-jest)
+        working-directory: apps/api
+        run: npx prisma generate
+
+      - name: Executar testes
+        run: npm test --workspace=apps/api
+        env:
+          # Jest mocka o banco — DATABASE_URL não é usada em testes
+          # mas env.ts valida o formato se importado; usamos stub válido
+          DATABASE_URL: postgresql://user:pass@localhost:5432/test
+          JWT_SECRET: ci-secret-not-used-in-unit-tests
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 2 — Verificação de build da API (TypeScript → JS)
+  # ────────────────────────────────────────────────────────────
+  build-api:
+    name: Build API
+    runs-on: ubuntu-latest
+    needs: test-api   # só builda se os testes passarem
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Gerar Prisma Client
+        working-directory: apps/api
+        run: npx prisma generate
+
+      - name: Build API (tsc)
+        run: npm run build --workspace=apps/api
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 3 — Verificação de build do Web (Vite bundle)
+  # ────────────────────────────────────────────────────────────
+  build-web:
+    name: Build Web
+    runs-on: ubuntu-latest
+    needs: test-api   # só builda se os testes passarem
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build Web (Vite)
+        run: npm run build --workspace=apps/web
+        env:
+          # Evita warning de chunks grandes bloqueando o build
+          NODE_OPTIONS: --max-old-space-size=4096

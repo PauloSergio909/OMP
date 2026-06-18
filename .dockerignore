@@ -1,0 +1,26 @@
+# Evita copiar node_modules locais (container vai instalar os próprios)
+node_modules
+**/node_modules
+
+# Arquivos de build
+**/dist
+**/.next
+**/build
+**/out
+
+# Git e editor
+.git
+.gitignore
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs e temporários
+**/*.log
+**/npm-debug.log*
+**/.DS_Store
+**/Thumbs.db
+
+# Dados do Prisma que não vão pro container
+apps/api/prisma/dev.db
+apps/api/prisma/*.db-journal

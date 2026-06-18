@@ -1,0 +1,38 @@
+# ══════════════════════════════════════════════════════════════
+# DOCKER COMPOSE — Produção (sem hot-reload, imagens otimizadas)
+# Uso: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ══════════════════════════════════════════════════════════════
+
+version: "3.8"
+
+services:
+  api:
+    environment:
+      NODE_ENV: production
+      # Defina ALLOWED_ORIGIN para o domínio do frontend em produção
+      # Ex: ALLOWED_ORIGIN=https://frota.suaempresa.com.br docker-compose ... up -d
+      ALLOWED_ORIGIN: "${ALLOWED_ORIGIN:-}"
+    # Remove volumes de hot-reload em produção
+    volumes: []
+    # Mantém dependências de saúde
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    ports:
+      - "80:80"      # nginx na porta 80 em vez de vite na 5173
+    volumes: []      # sem hot-reload
+
+  redis:
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    # Em produção não expõe a porta do banco externamente
+    ports: []

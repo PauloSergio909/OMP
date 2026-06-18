@@ -1,0 +1,469 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ConfiguracaoEmpresa {
+  id          String   @id @default(uuid())
+  razaoSocial String   @map("razao_social")
+  cnpj        String?
+  telefone    String?
+  email       String?
+  endereco    String?
+  logoUrl     String?  @map("logo_url")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracao_empresa")
+}
+
+model LogAuditoria {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  userNome  String   @map("user_nome")
+  acao      String
+  entidade  String
+  entidadeId String? @map("entidade_id")
+  detalhes  Json?
+  ip        String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([entidade])
+  @@index([createdAt])
+  @@map("logs_auditoria")
+}
+
+model User {
+  id            String   @id @default(uuid())   
+  email         String   @unique                
+  senhaHash     String   @map("senha_hash")     
+  nome          String
+  role          String   @default("visualizador") 
+  ativo         Boolean  @default(true)
+  funcionarioId String?  @unique @map("funcionario_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  funcionario   Funcionario? @relation(fields: [funcionarioId], references: [id])
+  movimentacoes Movimentacao[]
+
+  @@map("users")
+}
+
+
+model Funcionario {
+  id            String   @id @default(uuid())
+  nome          String
+  cpf           String   @unique
+  cargo         String                         
+  cnhCategoria  String?  @map("cnh_categoria")  
+  cnhValidade   DateTime? @map("cnh_validade")
+  telefone      String
+  email         String
+  ativo         Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user                       User?
+  caminhoesMotorista         Caminhao[]                @relation("Motorista")
+  ordensResponsavel          OrdemServico[]            @relation("Responsavel")
+  abastecimentos             Abastecimento[]
+  equipamentosResponsavel    Equipamento[]             @relation("EquipamentoResponsavel")
+  movimentacoesEquipamento   MovimentacaoEquipamento[] @relation("MovimentacaoEquipamentoResponsavel")
+  checklists                 ChecklistVistoria[]       @relation("ChecklistMotorista")
+
+  @@map("funcionarios")
+}
+
+
+model Categoria {
+  id        String  @id @default(uuid())
+  nome      String  @unique                   
+  descricao String?
+
+  materiais Material[]
+
+  @@map("categorias")
+}
+
+
+model Fornecedor {
+  id           String  @id @default(uuid())
+  razaoSocial  String  @map("razao_social")
+  cnpj         String  @unique
+  telefone     String
+  email        String
+  endereco     String?
+  avaliacao    Float   @default(0)            
+  ativo        Boolean @default(true)
+
+  materiais    Material[]
+  ordensCompra OrdemCompra[]
+
+  @@map("fornecedores")
+}
+
+
+model Material {
+  id             String  @id @default(uuid())
+  codigo         String  @unique               
+  nome           String
+  categoriaId    String  @map("categoria_id")
+  unidadeMedida  String  @map("unidade_medida")
+  precoUnitario  Float   @map("preco_unitario")
+  estoqueMinimo  Int     @map("estoque_minimo")
+  estoqueMaximo  Int     @map("estoque_maximo")
+  fornecedorId   String  @map("fornecedor_id")
+  ativo          Boolean @default(true)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  categoria     Categoria    @relation(fields: [categoriaId], references: [id])
+  fornecedor    Fornecedor   @relation(fields: [fornecedorId], references: [id])
+  estoques      Estoque[]
+  movimentacoes Movimentacao[]
+  itensOS       ItemOS[]
+  itensCompra   ItemCompra[]
+
+  @@index([nome])
+  @@index([categoriaId])
+  @@map("materiais")
+}
+
+
+model Estoque {
+  id                String   @id @default(uuid())
+  materialId        String   @map("material_id")
+  quantidade        Int      @default(0)
+  localizacao       String?                    
+  ultimaAtualizacao DateTime @default(now()) @map("ultima_atualizacao")
+
+  material Material @relation(fields: [materialId], references: [id])
+
+ 
+  @@unique([materialId])
+  @@map("estoques")
+}
+
+
+model Movimentacao {
+  id              String   @id @default(uuid())
+  materialId      String   @map("material_id")
+  tipo            String                       
+  quantidade      Int
+  precoUnitario   Float    @map("preco_unitario")
+  motivo          String
+  ordemServicoId  String?  @map("ordem_servico_id")
+  usuarioId       String   @map("usuario_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  material     Material      @relation(fields: [materialId], references: [id])
+  ordemServico OrdemServico?  @relation(fields: [ordemServicoId], references: [id])
+  usuario      User           @relation(fields: [usuarioId], references: [id])
+
+  @@index([materialId])
+  @@index([createdAt])
+  @@index([ordemServicoId])
+  @@map("movimentacoes")
+}
+
+model Caminhao {
+  id                String   @id @default(uuid())
+  codigo            String   @unique            
+  placa             String   @unique
+  chassi            String   @unique
+  modelo            String
+  fabricante        String
+  anoFabricacao     Int      @map("ano_fabricacao")
+  kmAtual           Int      @map("km_atual")
+  status            String   @default("operacional") 
+  motoristaId       String?  @map("motorista_id")
+  proximaManutencao   DateTime? @map("proxima_manutencao")
+  proximaManutencaoKm Int?      @map("proxima_manutencao_km")
+  vencimentoCrlv      DateTime? @map("vencimento_crlv")
+  vencimentoSeguro  DateTime? @map("vencimento_seguro")
+  numeroSeguro      String?   @map("numero_seguro")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  motorista      Funcionario?   @relation("Motorista", fields: [motoristaId], references: [id])
+  ordensServico  OrdemServico[]
+  abastecimentos Abastecimento[]
+  kmRegistros    KmRegistro[]
+  pneus          Pneu[]
+  checklists     ChecklistVistoria[]
+
+  @@index([status])
+  @@index([motoristaId])
+  @@map("caminhoes")
+}
+
+
+model Pneu {
+  id             String   @id @default(uuid())
+  codigo         String   @unique
+  caminhaoId     String   @map("caminhao_id")
+  posicao        String
+  marca          String
+  modelo         String
+  numeroSerie    String?  @map("numero_serie")
+  kmInstalacao   Int      @default(0) @map("km_instalacao")
+  kmVidaUtil     Int      @default(80000) @map("km_vida_util")
+  dataInstalacao DateTime @default(now()) @map("data_instalacao")
+  status         String   @default("ativo")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  caminhao Caminhao    @relation(fields: [caminhaoId], references: [id])
+  trocas   TrocaPneu[]
+
+  @@index([caminhaoId])
+  @@map("pneus")
+}
+
+model TrocaPneu {
+  id          String   @id @default(uuid())
+  pneuId      String   @map("pneu_id")
+  kmTroca     Int      @map("km_troca")
+  motivo      String
+  custo       Float?
+  observacoes String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  pneu Pneu @relation(fields: [pneuId], references: [id])
+
+  @@index([pneuId])
+  @@map("trocas_pneu")
+}
+
+model ChecklistVistoria {
+  id          String   @id @default(uuid())
+  caminhaoId  String   @map("caminhao_id")
+  motoristaId String   @map("motorista_id")
+  kmAtual     Int      @map("km_atual")
+  tipo        String   @default("pre_viagem")
+  aprovado    Boolean  @default(false)
+  observacoes String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  caminhao  Caminhao    @relation(fields: [caminhaoId], references: [id])
+  motorista Funcionario @relation("ChecklistMotorista", fields: [motoristaId], references: [id])
+  itens     ItemChecklist[]
+
+  @@index([caminhaoId])
+  @@index([motoristaId])
+  @@index([createdAt])
+  @@map("checklists_vistoria")
+}
+
+model ItemChecklist {
+  id          String  @id @default(uuid())
+  checklistId String  @map("checklist_id")
+  item        String
+  ok          Boolean @default(true)
+  observacoes String?
+
+  checklist ChecklistVistoria @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+
+  @@index([checklistId])
+  @@map("itens_checklist")
+}
+
+model KmRegistro {
+  id         String   @id @default(uuid())
+  caminhaoId String   @map("caminhao_id")
+  km         Int
+  data       DateTime @default(now())
+
+  caminhao Caminhao @relation(fields: [caminhaoId], references: [id])
+
+  @@index([caminhaoId, data])
+  @@map("km_registros")
+}
+
+model OrdemServico {
+  id             String    @id @default(uuid())
+  codigo         String    @unique               
+  caminhaoId     String    @map("caminhao_id")
+  tipo           String                       
+  descricao      String
+  status         String    @default("agendada")  
+  prioridade     String    @default("media")   
+  responsavelId  String    @map("responsavel_id")
+  dataAbertura   DateTime  @default(now()) @map("data_abertura")
+  dataPrevisao   DateTime  @map("data_previsao")
+  dataConclusao  DateTime? @map("data_conclusao")
+  custoTotal     Float?    @map("custo_total")
+  observacoes    String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  caminhao      Caminhao      @relation(fields: [caminhaoId], references: [id])
+  responsavel   Funcionario   @relation("Responsavel", fields: [responsavelId], references: [id])
+  itens         ItemOS[]
+  movimentacoes Movimentacao[]
+  historico     HistoricoOS[]
+
+  @@index([status])
+  @@index([caminhaoId])
+  @@index([responsavelId])
+  @@index([dataAbertura])
+  @@map("ordens_servico")
+}
+
+model AgendaEvento {
+  id        String   @id @default(uuid())
+  titulo    String
+  descricao String?
+  data      DateTime
+  tipo      String   @default("lembrete")
+  cor       String   @default("blue")
+  link      String?
+  usuarioId String   @map("usuario_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([data])
+  @@index([usuarioId])
+  @@map("agenda_eventos")
+}
+
+model HistoricoOS {
+  id             String   @id @default(uuid())
+  ordemServicoId String   @map("ordem_servico_id")
+  statusAnterior String?  @map("status_anterior")
+  statusNovo     String   @map("status_novo")
+  usuarioId      String   @map("usuario_id")
+  usuarioNome    String   @map("usuario_nome")
+  observacao     String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [id])
+
+  @@index([ordemServicoId])
+  @@map("historico_os")
+}
+
+
+model ItemOS {
+  id              String  @id @default(uuid())
+  ordemServicoId  String  @map("ordem_servico_id")
+  materialId      String? @map("material_id")
+  quantidade      Int
+  precoUnitario   Float   @map("preco_unitario")
+  tipo            String
+  descricao       String?
+
+  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [id])
+  material     Material?    @relation(fields: [materialId], references: [id])
+
+  @@index([ordemServicoId])
+  @@index([materialId])
+  @@map("itens_os")
+}
+
+
+model Abastecimento {
+  id           String   @id @default(uuid())
+  caminhaoId   String   @map("caminhao_id")
+  motoristaId  String   @map("motorista_id")
+  litros       Float
+  precoLitro   Float    @map("preco_litro")
+  kmAtual      Int      @map("km_atual")
+  combustivel  String                          
+  posto        String
+  data         DateTime @default(now())
+
+  caminhao  Caminhao    @relation(fields: [caminhaoId], references: [id])
+  motorista Funcionario @relation(fields: [motoristaId], references: [id])
+
+  @@index([caminhaoId, data])
+  @@index([motoristaId])
+  @@map("abastecimentos")
+}
+
+
+model OrdemCompra {
+  id            String    @id @default(uuid())
+  codigo        String    @unique                
+  fornecedorId  String    @map("fornecedor_id")
+  status        String    @default("pendente")  
+  valorTotal    Float     @map("valor_total")
+  dataPedido       DateTime  @default(now()) @map("data_pedido")
+  dataEntrega      DateTime? @map("data_entrega")
+  dataRecebimento  DateTime? @map("data_recebimento")
+  observacoes      String?
+
+  fornecedor Fornecedor   @relation(fields: [fornecedorId], references: [id])
+  itens      ItemCompra[]
+
+  @@index([status])
+  @@index([fornecedorId])
+  @@map("ordens_compra")
+}
+
+model ItemCompra {
+  id             String @id @default(uuid())
+  ordemCompraId  String @map("ordem_compra_id")
+  materialId     String @map("material_id")
+  quantidade     Int
+  precoUnitario  Float  @map("preco_unitario")
+
+  ordemCompra OrdemCompra @relation(fields: [ordemCompraId], references: [id])
+  material    Material    @relation(fields: [materialId], references: [id])
+
+  @@index([ordemCompraId])
+  @@index([materialId])
+  @@map("itens_compra")
+}
+
+
+model Equipamento {
+  id               String    @id @default(uuid())
+  codigo           String    @unique
+  nome             String
+  tipo             String
+  descricao        String?
+  numeroSerie      String?   @map("numero_serie")
+  status           String    @default("disponivel")
+  responsavelId    String?   @map("responsavel_id")
+  localizacao      String?
+  dataAquisicao    DateTime? @map("data_aquisicao")
+  valorAquisicao   Float?    @map("valor_aquisicao")
+  fabricante       String?
+  modelo           String?
+  proximaRevisao   DateTime? @map("proxima_revisao")
+  observacoes      String?
+  ativo            Boolean   @default(true)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  responsavel      Funcionario? @relation("EquipamentoResponsavel", fields: [responsavelId], references: [id])
+  movimentacoes    MovimentacaoEquipamento[]
+
+  @@index([status])
+  @@index([tipo])
+  @@index([responsavelId])
+  @@map("equipamentos")
+}
+
+
+model MovimentacaoEquipamento {
+  id             String   @id @default(uuid())
+  equipamentoId  String   @map("equipamento_id")
+  tipo           String
+  responsavelId  String   @map("responsavel_id")
+  destino        String?
+  observacoes    String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  equipamento  Equipamento @relation(fields: [equipamentoId], references: [id])
+  responsavel  Funcionario @relation("MovimentacaoEquipamentoResponsavel", fields: [responsavelId], references: [id])
+
+  @@index([equipamentoId])
+  @@index([responsavelId])
+  @@map("movimentacoes_equipamento")
+}

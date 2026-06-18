@@ -1,0 +1,44 @@
+# ══════════════════════════════════════════════════════════════
+# .gitignore — Arquivos que o Git deve IGNORAR
+# ══════════════════════════════════════════════════════════════
+# Tudo listado aqui NÃO vai para o repositório.
+# Motivos: segurança (senhas), peso (node_modules), ou
+# são arquivos gerados automaticamente (dist, .env).
+
+# ─── DEPENDÊNCIAS ─────────────────────────────────────────────
+# node_modules pode ter 500MB+. Cada dev instala rodando "npm install"
+node_modules/
+
+# ─── VARIÁVEIS DE AMBIENTE ────────────────────────────────────
+# Contém senhas e chaves secretas — NUNCA subir pro Git
+.env
+.env.local
+.env.production
+
+# ─── BUILD (arquivos gerados) ─────────────────────────────────
+dist/
+build/
+.next/
+
+# ─── BANCO DE DADOS ──────────────────────────────────────────
+# Volumes do Docker ficam locais
+postgres_data/
+
+# ─── LOGS ─────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+
+# ─── SISTEMA OPERACIONAL ─────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── IDE ──────────────────────────────────────────────────────
+# .vscode/settings.json e extensions.json VÃO pro Git (configs do projeto)
+# Mas arquivos pessoais da IDE não
+.idea/
+*.swp
+*.swo
+
+# ─── TESTES ───────────────────────────────────────────────────
+coverage/

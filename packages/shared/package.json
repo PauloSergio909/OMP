@@ -1,0 +1,13 @@
+{
+  "name": "@fleetmaster/shared",
+  "version": "1.0.0",
+  "description": "Tipos e validações compartilhados entre front-end e back-end",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.22.0"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "fleetmaster",
+  "version": "1.0.0",
+  "description": "Sistema de Gestão de Materiais, Estoque e Manutenção de Frota",
+  "private": true,
+
+  "// EXPLICAÇÃO WORKSPACES": "npm workspaces permite gerenciar múltiplos projetos (api, web, shared) em um único repositório. Quando você roda 'npm install' na raiz, ele instala as dependências de TODOS os sub-projetos de uma vez e cria links simbólicos entre eles.",
+
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+
+  "// EXPLICAÇÃO SCRIPTS": "Atalhos para comandos longos. Em vez de digitar 'cd apps/api && npm run dev', você digita 'npm run dev:api' de qualquer lugar.",
+
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces",
+    "db:migrate": "npm run db:migrate --workspace=apps/api",
+    "db:seed": "npm run db:seed --workspace=apps/api",
+    "db:studio": "npm run db:studio --workspace=apps/api",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.0"
+  }
+}

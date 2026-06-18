@@ -1,0 +1,92 @@
+# ══════════════════════════════════════════════════════════════
+# DOCKER COMPOSE — Orquestra todos os serviços do FleetMaster
+# ══════════════════════════════════════════════════════════════
+# Para usar: docker-compose up -d          → sobe tudo em background
+# Para ver logs: docker-compose logs -f api
+# Para parar: docker-compose down
+# Para resetar banco: docker-compose down -v (apaga dados!)
+# Para rebuild após mudar Dockerfile: docker-compose up -d --build
+
+version: "3.8"
+
+services:
+  # ─── POSTGRESQL ─────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: fleetmaster-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fleetmaster
+      POSTGRES_PASSWORD: fleetmaster123
+      POSTGRES_DB: fleetmaster_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fleetmaster"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─── REDIS ──────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: fleetmaster-cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  # ─── API (BACK-END) ────────────────────────────────────────
+  # IMPORTANTE: o build context é a RAIZ do monorepo (.)
+  # para que o Dockerfile consiga acessar packages/shared
+  api:
+    build:
+      context: .                          # raiz do monorepo
+      dockerfile: apps/api/Dockerfile     # caminho relativo à raiz
+    container_name: fleetmaster-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://fleetmaster:fleetmaster123@postgres:5432/fleetmaster_dev
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: sua-chave-secreta-mude-em-producao-123
+      PORT: 3000
+    volumes:
+      # Hot-reload: monta código local sobre o que foi copiado no build
+      # O WORKDIR do container é /app/apps/api (definido no Dockerfile)
+      - ./apps/api/src:/app/apps/api/src
+      - ./apps/api/prisma:/app/apps/api/prisma
+      # Shared também precisa de hot-reload para refletir mudanças de tipos
+      - ./packages/shared:/app/packages/shared
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  # ─── WEB (FRONT-END) ───────────────────────────────────────
+  web:
+    build:
+      context: .                          # raiz do monorepo
+      dockerfile: apps/web/Dockerfile
+    container_name: fleetmaster-web
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      # Hot-reload: WORKDIR do container é /app/apps/web
+      - ./apps/web/src:/app/apps/web/src
+      - ./packages/shared:/app/packages/shared
+    depends_on:
+      - api
+
+# ─── VOLUMES PERSISTENTES ─────────────────────────────────────
+volumes:
+  postgres_data:
+  redis_data:
