@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "postinstall": "prisma generate",
+    "prebuild": "npm run build -w @fleetmaster/shared",
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint src/ --ext .ts",
