@@ -59,13 +59,18 @@ export async function buildApp() {
     staticCSP: true,
   });
 
+  const allowedOrigins: string[] = env.NODE_ENV === 'development'
+    ? ['http://localhost:5173', 'http://localhost:3000']
+    : env.ALLOWED_ORIGIN
+      ? env.ALLOWED_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean)
+      : [];
+
+  app.log.info({ allowedOrigins }, 'CORS origins');
+
   await app.register(cors, {
-    origin: env.NODE_ENV === 'development'
-      ? ['http://localhost:5173', 'http://localhost:3000']
-      : env.ALLOWED_ORIGIN
-        ? [env.ALLOWED_ORIGIN]
-        : [],
+    origin: allowedOrigins,
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
   });
 
   await app.register(helmet);
