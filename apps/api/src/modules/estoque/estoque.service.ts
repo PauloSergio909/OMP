@@ -317,7 +317,7 @@ export class EstoqueService {
   async importarMateriais(data: {
     categoriaId: string;
     fornecedorId: string;
-    materiais: { nome: string; unidadeMedida: string; precoUnitario: number; estoqueMinimo: number; estoqueMaximo: number }[];
+    materiais: { nome: string; unidadeMedida: CreateMaterialInput['unidadeMedida']; precoUnitario: number; estoqueMinimo: number; estoqueMaximo: number }[];
   }) {
     let criados = 0;
     const erros: { nome: string; mensagem: string }[] = [];

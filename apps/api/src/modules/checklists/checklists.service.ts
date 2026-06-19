@@ -52,7 +52,7 @@ export class ChecklistsService {
     observacoes?: string;
     itens: { item: string; ok: boolean; observacoes?: string }[];
   }) {
-    const itensParaCriar = data.itens.length > 0
+    const itensParaCriar: { item: string; ok: boolean; observacoes?: string }[] = data.itens.length > 0
       ? data.itens
       : ITENS_PADRAO.map((item) => ({ item, ok: true }));
 
