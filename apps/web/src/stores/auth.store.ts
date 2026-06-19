@@ -68,7 +68,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
       try {
-        const { data } = await axios.post('/api/auth/refresh', { refreshToken });
+        const { data } = await axios.post(`${import.meta.env.VITE_API_URL ?? '/api'}/auth/refresh`, { refreshToken });
         const newToken: string = data.data.accessToken;
         localStorage.setItem('accessToken', newToken);
         const payload = JSON.parse(atob(newToken.split('.')[1]));
