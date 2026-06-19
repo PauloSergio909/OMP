@@ -15,6 +15,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@shared': path.resolve(__dirname, '../../packages/shared/src'),
+      '@fleetmaster/shared': path.resolve(__dirname, '../../packages/shared/src'),
     },
   },
 
