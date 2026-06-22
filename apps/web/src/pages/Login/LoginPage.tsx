@@ -41,7 +41,7 @@ export function LoginPage() {
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-fleet-accent to-amber-400 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-fleet-accent/30">
             <Truck size={40} className="text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-3">FleetMaster Pro</h1>
+          <h1 className="text-4xl font-bold text-white mb-3">Controle OMP</h1>
           <p className="text-white/50 text-lg leading-relaxed max-w-md">
             Sistema integrado de gestão de materiais, controle de estoque e manutenção de frota
           </p>
@@ -67,7 +67,7 @@ export function LoginPage() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-fleet-accent to-amber-400 flex items-center justify-center">
               <Truck size={22} className="text-white" />
             </div>
-            <span className="text-xl font-bold text-fleet-primary">FleetMaster</span>
+            <span className="text-xl font-bold text-fleet-primary">Controle OMP</span>
           </div>
 
           <h2 className="text-2xl font-bold text-gray-900 mb-1">Bem-vindo de volta</h2>

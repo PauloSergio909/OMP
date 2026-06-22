@@ -67,7 +67,7 @@ export function CompraDetalhePage() {
             <h1 className="text-xl font-bold text-gray-900"><CopyText text={oc.codigo} className="font-mono" /></h1>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => oc && printDocument(buildOCHtml(oc), `OC ${oc.codigo} — FleetMaster`)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">
+            <button onClick={() => oc && printDocument(buildOCHtml(oc), `OC ${oc.codigo} — Controle OMP`)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">
               <Printer size={15} /> Imprimir / PDF
             </button>
             {oc.status === 'pendente' && (

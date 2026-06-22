@@ -91,7 +91,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
         {isOpen && (
           <div className="flex-1 min-w-0">
-            <div className="text-white font-bold text-lg tracking-tight">FleetMaster</div>
+            <div className="text-white font-bold text-lg tracking-tight">Controle OMP</div>
             <div className="text-white/40 text-[10px] font-medium uppercase tracking-widest">Pro v1.0</div>
           </div>
         )}

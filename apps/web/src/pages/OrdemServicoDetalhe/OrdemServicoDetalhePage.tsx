@@ -78,7 +78,7 @@ export function OrdemServicoDetalhePage() {
             <p className="text-sm text-gray-600 leading-relaxed">{os.descricao}</p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 print:hidden">
-            <button onClick={() => printDocument(buildOSHtml(os), `OS ${os.codigo} — FleetMaster`)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition" aria-label="Imprimir / Salvar PDF">
+            <button onClick={() => printDocument(buildOSHtml(os), `OS ${os.codigo} — Controle OMP`)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition" aria-label="Imprimir / Salvar PDF">
               <Printer size={14} />
             </button>
             <button

@@ -72,13 +72,13 @@ export function buildRelatorioTabHtml(
     <div class="header">
       <div class="header-left">
         <h1>Relatório — ${esc(titulo)}</h1>
-        <p>FleetMaster · Gerado em ${new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+        <p>Controle OMP · Gerado em ${new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
       </div>
     </div>
     ${kpiHtml}
     ${secoesHtml}
     <div class="footer">
-      <span>FleetMaster — Sistema de Gestão de Frota</span>
+      <span>Controle OMP — Sistema de Gestão de Frota</span>
       <span>Impresso em ${new Date().toLocaleString('pt-BR')}</span>
     </div>`;
 }

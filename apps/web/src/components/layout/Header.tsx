@@ -25,7 +25,7 @@ function resolveTitle(pathname: string): string {
   if (pathname.startsWith('/compras/')) return 'Detalhes da OC';
   if (pathname.startsWith('/estoque/')) return 'Detalhes do Material';
   if (pathname.startsWith('/equipamentos/')) return 'Detalhes do Equipamento';
-  return 'FleetMaster';
+  return 'Controle OMP';
 }
 
 function getInitials(nome: string): string {

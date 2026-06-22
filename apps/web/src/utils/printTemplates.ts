@@ -65,7 +65,7 @@ export function buildOSHtml(os: {
     ${os.observacoes ? `<h2>Observações</h2><p>${esc(os.observacoes)}</p>` : ''}
 
     <div class="footer">
-      <span>FleetMaster — Sistema de Gestão de Frota</span>
+      <span>Controle OMP — Sistema de Gestão de Frota</span>
       <span>Impresso em ${new Date().toLocaleString('pt-BR')}</span>
     </div>`;
 }
@@ -127,7 +127,7 @@ export function buildOCHtml(oc: {
     ${oc.observacoes ? `<h2>Observações</h2><p>${esc(oc.observacoes)}</p>` : ''}
 
     <div class="footer">
-      <span>FleetMaster — Sistema de Gestão de Frota</span>
+      <span>Controle OMP — Sistema de Gestão de Frota</span>
       <span>Impresso em ${new Date().toLocaleString('pt-BR')}</span>
     </div>`;
 }
@@ -208,7 +208,7 @@ export function buildCaminhaoHtml(c: CaminhaoParaFicha): string {
     </table>` : ''}
 
     <div class="footer">
-      <span>FleetMaster — Ficha Técnica do Veículo</span>
+      <span>Controle OMP — Ficha Técnica do Veículo</span>
       <span>Gerado em ${new Date().toLocaleString('pt-BR')}</span>
     </div>`;
 }
@@ -266,7 +266,7 @@ export function buildChecklistHtml(
     <div class="field"><span>${esc(cl.observacoes)}</span></div>` : ''}
 
     <div class="footer">
-      <span>FleetMaster — Checklist de Vistoria</span>
+      <span>Controle OMP — Checklist de Vistoria</span>
       <span>Gerado em ${new Date().toLocaleString('pt-BR')}</span>
     </div>`;
 }
@@ -338,7 +338,7 @@ export function buildFuncionarioHtml(f: {
     </table>` : ''}
 
     <div class="footer">
-      <span>FleetMaster — Ficha do Funcionário</span>
+      <span>Controle OMP — Ficha do Funcionário</span>
       <span>Gerado em ${new Date().toLocaleString('pt-BR')}</span>
     </div>`;
 }

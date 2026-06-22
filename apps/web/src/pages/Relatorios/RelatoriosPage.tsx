@@ -21,7 +21,7 @@ export function RelatoriosPage() {
     <div className="space-y-6">
       {/* Cabeçalho visível apenas na impressão */}
       <div className="hidden print:block mb-4 pb-4 border-b border-gray-200">
-        <h1 className="text-lg font-bold text-gray-900">FleetMaster — Relatório: {tabAtiva}</h1>
+        <h1 className="text-lg font-bold text-gray-900">Controle OMP — Relatório: {tabAtiva}</h1>
         <p className="text-sm text-gray-500">Gerado em {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
       </div>
 
