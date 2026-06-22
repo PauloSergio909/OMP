@@ -7,7 +7,7 @@
     "postinstall": "prisma generate",
     "prebuild": "npm run build -w @fleetmaster/shared",
     "build": "tsc",
-    "prestart": "prisma migrate deploy",
+    "prestart": "prisma migrate deploy && npx tsx prisma/seed-if-empty.ts",
     "start": "node dist/server.js",
     "lint": "eslint src/ --ext .ts",
     "test": "jest --passWithNoTests",
