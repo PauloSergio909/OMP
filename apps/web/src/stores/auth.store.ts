@@ -47,6 +47,27 @@ export const useAuthStore = create<AuthState>((set) => ({
   })),
 
   checkAuth: async () => {
+    // Modo demo: login automático sem exibir a tela de login
+    if (import.meta.env.VITE_DEMO_MODE === 'true') {
+      const token = localStorage.getItem('accessToken');
+      const payload = token
+        ? (() => { try { return JSON.parse(atob(token.split('.')[1])); } catch { return null; } })()
+        : null;
+      if (payload && payload.exp * 1000 > Date.now()) {
+        set({ user: { id: payload.id, email: payload.email, nome: payload.nome ?? '', role: payload.role, funcionarioId: payload.funcionarioId ?? null }, isAuthenticated: true, isLoading: false });
+        return;
+      }
+      try {
+        const { data } = await axios.post(`${import.meta.env.VITE_API_URL ?? '/api'}/auth/login`, { email: 'admin@fleetmaster.com.br', senha: 'admin123' });
+        localStorage.setItem('accessToken', data.data.accessToken);
+        localStorage.setItem('refreshToken', data.data.refreshToken);
+        set({ user: data.data.user, isAuthenticated: true, isLoading: false });
+      } catch {
+        set({ isLoading: false });
+      }
+      return;
+    }
+
     const token = localStorage.getItem('accessToken');
 
     if (token) {
